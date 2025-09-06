@@ -1,9 +1,15 @@
 import { multerUpload } from "../../core/middlewares/multer.js";
 import { 
-     getAllUsersController, getAllAdminsController, getAllSelleresController, getUserByIdController,updateUserController, deleteUserController, 
+     getAllUsersController, getAllAdminsController, getAllSelleresController,
      createAvatarController,updateAvatarProfileController,deleteAvatarController,
      createMultipleAvatarController,updateMultipleAvatarController,deleteMultipleAvatarController,
-     createUserPDFController,updateUserPDFController,deleteUserPDFController
+     createUserPDFController,updateUserPDFController,deleteUserPDFController,
+     getUserProfileController,
+     updateUserProfileController,
+     deleteOwnAccountController,
+     adminGetUserByIdController,
+     adminUpdateUserController,
+     adminDeleteUserController
     } from "./user.controller.js";
 import { adminMiddleware,  verifyToken } from "../../core/middlewares/authMiddleware.js";
 import express from "express";
@@ -18,24 +24,29 @@ router.get("/all-admins", verifyToken, adminMiddleware,  getAllAdminsController)
 router.get("/all-sellers", verifyToken, adminMiddleware, getAllSelleresController);
 
 // user
-router.get("/:id", verifyToken, getUserByIdController);
-router.put("/:id", verifyToken, updateUserController);
-router.delete("/:id", verifyToken, adminMiddleware,  deleteUserController);
+router.get("/me", verifyToken, getUserProfileController);
+router.put("/me", verifyToken, updateUserProfileController);
+router.delete("/me", verifyToken, deleteOwnAccountController);
 
 // avatar
-router.post("/upload-avatar/:id", verifyToken, multerUpload([{ name: "profileImage", maxCount: 1 }]), createAvatarController);
-router.put("/upload-avatar/:id", verifyToken, multerUpload([{ name: "profileImage", maxCount: 1 }]), updateAvatarProfileController);
-router.delete("/upload-avatar/:id", verifyToken, deleteAvatarController);
+router.post("/upload-avatar", verifyToken, multerUpload([{ name: "profileImage", maxCount: 1 }]), createAvatarController);
+router.put("/upload-avatar", verifyToken, multerUpload([{ name: "profileImage", maxCount: 1 }]), updateAvatarProfileController);
+router.delete("/upload-avatar", verifyToken, deleteAvatarController);
 
 // multiple avatar
-router.post("/upload-multiple-avatar/:id", verifyToken, multerUpload([{ name: "multiProfileImage", maxCount: 5 },]), createMultipleAvatarController);
-router.put("/upload-multiple-avatar/:id", verifyToken, multerUpload([{ name: "multiProfileImage", maxCount: 5 },]), updateMultipleAvatarController);
-router.delete("/upload-multiple-avatar/:id", verifyToken,deleteMultipleAvatarController);
+router.post("/upload-multiple-avatar", verifyToken, multerUpload([{ name: "multiProfileImage", maxCount: 5 },]), createMultipleAvatarController);
+router.put("/upload-multiple-avatar", verifyToken, multerUpload([{ name: "multiProfileImage", maxCount: 5 },]), updateMultipleAvatarController);
+router.delete("/upload-multiple-avatar", verifyToken,deleteMultipleAvatarController);
 
 // file upload
-router.post("/upload-file/:id", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]),createUserPDFController);
-router.put("/upload-file/:id", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]),updateUserPDFController);
-router.delete("/upload-file/:id", verifyToken, deleteUserPDFController);
+router.post("/upload-file", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]),createUserPDFController);
+router.put("/upload-file", verifyToken, multerUpload([{ name: "userPDF", maxCount: 1 },]),updateUserPDFController);
+router.delete("/upload-file", verifyToken, deleteUserPDFController);
+
+// admin user management
+router.get("/:id", verifyToken, adminMiddleware, adminGetUserByIdController);
+router.put("/:id", verifyToken, adminMiddleware, adminUpdateUserController);
+router.delete("/:id", verifyToken, adminMiddleware, adminDeleteUserController);
 
 
 export default router;

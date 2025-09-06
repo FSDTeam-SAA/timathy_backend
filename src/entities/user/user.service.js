@@ -84,6 +84,41 @@ export const deleteUser = async (userId) => {
 };
 
 
+
+// Get user by ID
+export const adminGetUserById = async (userId) => {
+  const user = await User.findById(userId).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+  if (!user) {
+    throw new Error('User not found');
+  }
+  return user;
+};
+
+
+// Update user
+export const adminUpdateUser = async ({ id, ...updateData }) => {
+  const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  }).select("-password -createdAt -updatedAt -__v -verificationCode -verificationCodeExpires");
+
+  if (!updatedUser) {
+    throw new Error('User not found');
+  }
+  return updatedUser;
+};
+
+
+// Delete user
+export const adminDeleteUser = async (userId) => {
+  const deletedUser = await User.findByIdAndDelete(userId);
+  if (!deletedUser) {
+    throw new Error('User not found');
+  }
+  return true;
+};
+
+
 // Upload avatar
 export const createAvatarProfile = async (id, files) => {
 

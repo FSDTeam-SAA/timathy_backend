@@ -24,6 +24,7 @@ export const emailPass = process.env.EMAIL_PASS;
 export const emailFrom = process.env.EMAIL_FROM;
 export const adminMail= process.env.ADMIN_EMAIL; 
 export const emailTo = process.env.EMAIL_TO;
+
 // Cloudinary config
 export const cloudinaryCloudName = process.env.CLOUDINARY_CLOUD_NAME;
 export const cloudinaryApiKey = process.env.CLOUDINARY_API_KEY;

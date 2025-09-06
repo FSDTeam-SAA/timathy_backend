@@ -16,7 +16,10 @@ import {
   
   createUserPDF,
   updateUserPDF,
-  deleteUserPDF
+  deleteUserPDF,
+  adminGetUserById,
+  adminUpdateUser,
+  adminDeleteUser
 
 } from "./user.service.js";
 
@@ -54,49 +57,83 @@ export const getAllSelleresController = async (req, res) => {
 };
 
 
-export const getUserByIdController = async (req, res) => {
+// User
+export const getUserProfileController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await getUserById(id);
-    generateResponse(res, 200, true, 'User fetched successfully', user);
+    const userId = req.user._id;
+    const user = await getUserById(userId);
+    generateResponse(res, 200, true, "User profile fetched successfully", user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to fetch user', null);
+    generateResponse(res, 500, false, "Failed to fetch user profile", null);
   }
 };
 
 
-export const updateUserController = async (req, res) => {
+export const updateUserProfileController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedUser = await updateUser({ id, ...req.body });
-    generateResponse(res, 200, true, 'User updated successfully', updatedUser);
+    const userId = req.user._id;
+    const updatedUser = await updateUser({ id: userId, ...req.body });
+    generateResponse(res, 200, true, "User profile updated successfully", updatedUser);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to update user', null);
+    generateResponse(res, 500, false, "Failed to update profile", null);
   }
 };
 
 
-export const deleteUserController = async (req, res) => {
+export const deleteOwnAccountController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    await deleteUser(userId);
+    generateResponse(res, 200, true, "Your account has been deleted", null);
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to delete account", null);
+  }
+};
+
+
+// admin user management
+export const adminGetUserByIdController = async (req, res) => {
   try {
     const { id } = req.params;
-    await deleteUser(id);
-    generateResponse(res, 200, true, 'User deleted successfully', null);
+    const user = await adminGetUserById(id);
+    generateResponse(res, 200, true, "User fetched successfully", user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to delete user', null);
+    generateResponse(res, 500, false, "Failed to fetch user", null);
+  }
+};
+
+
+export const adminUpdateUserController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedUser = await adminUpdateUser({ id, ...req.body });
+    generateResponse(res, 200, true, "User updated successfully", updatedUser);
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to update user", null);
+  }
+};
+
+
+export const adminDeleteUserController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await adminDeleteUser(id);
+    generateResponse(res, 200, true, "User deleted successfully", null);
+  } catch (error) {
+    generateResponse(res, 500, false, "Failed to delete user", null);
   }
 };
 
 
 export const createAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;
-    
+    const userId = req.user._id;
+
     if (!req.files?.profileImage) {
       return generateResponse(res, 400, false, 'Profile image is required');
     }
-    // console.log(id)
 
-    const user = await createAvatarProfile(id, req.files);
+    const user = await createAvatarProfile(userId, req.files);
     generateResponse(res, 200, true, 'Avatar uploaded successfully', user);
   } catch (error) {
     console.error(error);
@@ -109,8 +146,8 @@ export const createAvatarController = async (req, res) => {
 
 export const updateAvatarProfileController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await updateAvatarProfile(id, req.files);
+    const userId = req.user._id;
+    const user = await updateAvatarProfile(userId, req.files);
     generateResponse(res, 200, true, 'Avatar updated successfully', user); 
   } catch (error) {
     console.error(error);
@@ -121,8 +158,8 @@ export const updateAvatarProfileController = async (req, res) => {
 
 export const deleteAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedUser = await deleteAvatarProfile(id);
+    const userId = req.user._id;
+    const updatedUser = await deleteAvatarProfile(userId);
     generateResponse(res, 200, true, 'Avatar deleted successfully', updatedUser);
   } catch (error) {
     console.error(error);
@@ -133,10 +170,16 @@ export const deleteAvatarController = async (req, res) => {
 
 export const createMultipleAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;    
-    const user = await createMultipleAvatar(id, req.files); 
+    const userId = req.user._id;
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return generateResponse(res, 400, false, 'At least one avatar image is required');
+    }
+
+    const user = await createMultipleAvatar(userId, req.files); 
     generateResponse(res, 200, true, 'Multiple avatars uploaded successfully', user);
   } catch (error) {
+    console.error(error);
     generateResponse(res, 500, false, 'Failed to upload multiple avatars', null);
   }
 };
@@ -144,21 +187,28 @@ export const createMultipleAvatarController = async (req, res) => {
 
 export const updateMultipleAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await updateMultipleAvatar(id, req.files);
-    generateResponse(res, 200, true, 'Multiple avatars uploaded successfully', user);
+    const userId = req.user._id;
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return generateResponse(res, 400, false, 'At least one avatar image is required');
+    }
+
+    const user = await updateMultipleAvatar(userId, req.files);
+    generateResponse(res, 200, true, 'Multiple avatars updated successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload multiple avatars', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to update multiple avatars', null);
   }
 };
 
 
 export const deleteMultipleAvatarController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await deleteMultipleAvatar(id);
+    const userId = req.user._id;
+    const user = await deleteMultipleAvatar(userId);
     generateResponse(res, 200, true, 'Multiple avatars deleted successfully', user);
   } catch (error) {
+    console.error(error);
     generateResponse(res, 500, false, 'Failed to delete multiple avatars', null);
   }
 };
@@ -166,10 +216,16 @@ export const deleteMultipleAvatarController = async (req, res) => {
 
 export const createUserPDFController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await createUserPDF(id, req.files);
+    const userId = req.user._id;
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return generateResponse(res, 400, false, 'At least one PDF is required');
+    }
+
+    const user = await createUserPDF(userId, req.files);
     generateResponse(res, 200, true, 'PDF uploaded successfully', user);
   } catch (error) {
+    console.error(error);
     generateResponse(res, 500, false, 'Failed to upload PDF', null);
   }
 };
@@ -177,24 +233,32 @@ export const createUserPDFController = async (req, res) => {
 
 export const updateUserPDFController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await updateUserPDF(id, req.files);
-    generateResponse(res, 200, true, 'PDF uploaded successfully', user);
+    const userId = req.user._id;
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return generateResponse(res, 400, false, 'At least one PDF is required');
+    }
+
+    const user = await updateUserPDF(userId, req.files);
+    generateResponse(res, 200, true, 'PDF updated successfully', user);
   } catch (error) {
-    generateResponse(res, 500, false, 'Failed to upload PDF', null);
+    console.error(error);
+    generateResponse(res, 500, false, 'Failed to update PDF', null);
   }
 };
 
 
 export const deleteUserPDFController = async (req, res) => {
   try {
-    const { id } = req.params;
-    const user = await deleteUserPDF(id);
+    const userId = req.user._id;
+    const user = await deleteUserPDF(userId);
     generateResponse(res, 200, true, 'PDF deleted successfully', user);
   } catch (error) {
+    console.error(error);
     generateResponse(res, 500, false, 'Failed to delete PDF', null);
   }
 };
+
 
 
 

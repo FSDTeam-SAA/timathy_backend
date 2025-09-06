@@ -77,8 +77,7 @@ export const refreshAccessTokenService = async (refreshToken) => {
 
 
 export const forgetPasswordService = async (email) => {
-
-  if (!email) throw new Error('Email is required')
+  if (!email) throw new Error('Email is required');
 
   const user = await User.findOne({ email });
   if (!user) throw new Error('Invalid email');
@@ -88,12 +87,15 @@ export const forgetPasswordService = async (email) => {
 
   user.otp = otp;
   user.otpExpires = otpExpires;
+  user.otpVerified = false;
+  user.resetExpires = null;
+
   await user.save({ validateBeforeSave: false });
 
   await sendEmail({
     to: email,
     subject: 'Password Reset OTP',
-    html: verificationCodeTemplate(otp)
+    html: verificationCodeTemplate(otp),
   });
 
   return;
@@ -101,19 +103,25 @@ export const forgetPasswordService = async (email) => {
 
 
 export const verifyCodeService = async ({ email, otp }) => {
-
-  if (!email || !otp) throw new Error('Email and otp are required')
+  if (!email || !otp) throw new Error('Email and otp are required');
 
   const user = await User.findOne({ email });
-
   if (!user) throw new Error('Invalid email');
 
   if (!user.otp || !user.otpExpires) throw new Error('Otp not found');
 
-  if (parseInt(user.otp, 10) !== parseInt(otp, 10) || Date.now() > user.otpExpires.getTime()) throw new Error('Invalid or expired otp')
+  if (
+    parseInt(user.otp, 10) !== parseInt(otp, 10) ||
+    Date.now() > user.otpExpires.getTime()
+  ) {
+    throw new Error('Invalid or expired otp');
+  }
 
   user.otp = null;
   user.otpExpires = null;
+  user.otpVerified = true;
+  user.resetExpires = new Date(Date.now() + 15 * 60 * 1000); 
+
   await user.save({ validateBeforeSave: false });
 
   return;
@@ -121,14 +129,24 @@ export const verifyCodeService = async ({ email, otp }) => {
 
 
 export const resetPasswordService = async ({ email, newPassword }) => {
-  if (!email || !newPassword) throw new Error('Email and new password are required');
+  if (!email || !newPassword)
+    throw new Error('Email and new password are required');
 
   const user = await User.findOne({ email });
   if (!user) throw new Error('Invalid email');
 
-  if (user.otp || user.otpExpires) throw new Error('otp not cleared');
+  if (!user.otpVerified || !user.resetExpires) {
+    throw new Error('otp not cleared');
+  }
+
+  if (Date.now() > user.resetExpires.getTime()) {
+    throw new Error('Reset session expired');
+  }
 
   user.password = newPassword;
+  user.otpVerified = false;
+  user.resetExpires = null;
+
   await user.save();
 
   return;
