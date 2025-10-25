@@ -27,6 +27,13 @@ const UserSchema = new mongoose.Schema(
       default: 'male'
     },
 
+adAccountId: { type: String, default: null },
+pageAccessToken: { type: String, default: null },
+instagramAccountId: { type: String, default: null },
+facebookConnectedAt: { type: Date, default: null },
+
+
+
     role: {
       type: String,
       default: RoleType.USER,
