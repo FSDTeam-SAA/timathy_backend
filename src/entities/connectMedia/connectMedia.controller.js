@@ -43,7 +43,13 @@ export const facebookCallback = async (req, res) => {
 
     // Get pages the user manages
     const pagesRes = await axios.get(`https://graph.facebook.com/v17.0/me/accounts?access_token=${longLivedToken}`);
-    const page = pagesRes.data.data[0]; // Pick first page, or let user choose in frontend
+    const pages = pagesRes.data.data;
+if (!pages || pages.length === 0) {
+  return res.status(400).json({ error: 'No Facebook pages found for this user' });
+}
+
+const page = pages[0];
+
 
     // Get Instagram Business ID linked to page
     const igRes = await axios.get(
