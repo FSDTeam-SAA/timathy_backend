@@ -4,7 +4,7 @@ import User from '../auth/auth.model.js';
 
 // Redirect user to Facebook login
 export const getFacebookLoginUrl = async (req, res) => {
-  const redirectUri = encodeURIComponent(`${process.env.BASE_URL}/v1/connect/callback`);
+  const redirectUri = encodeURIComponent(`${process.env.BASE_URL}/api/v1/connect/callback`);
   const clientId = process.env.FACEBOOK_APP_ID;
   const scope = encodeURIComponent('pages_show_list,ads_management,instagram_basic,ads_read,pages_read_engagement');
   
@@ -23,7 +23,7 @@ export const facebookCallback = async (req, res) => {
     const shortLivedRes = await axios.get(
       `https://graph.facebook.com/v17.0/oauth/access_token?` +
       `client_id=${process.env.FACEBOOK_APP_ID}` +
-      `&redirect_uri=${encodeURIComponent(`${process.env.BASE_URL}/v1/connect/callback`)}` +
+      `&redirect_uri=${encodeURIComponent(`${process.env.BASE_URL}/api/v1/connect/callback`)}` +
       `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
       `&code=${code}`
     );
