@@ -8,6 +8,6 @@ const router = express.Router();
 router.get('/connect-user',verifyToken,userAdminMiddleware, getFacebookLoginUrl);
 
 // Step 2: Facebook redirects here after login
-router.get('/callback', facebookCallback);
+router.get('/callback',verifyToken, facebookCallback);
 
 export default router;
