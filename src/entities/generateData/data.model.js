@@ -11,31 +11,33 @@ const AdSchema = new mongoose.Schema({
   // ---------- Campaign Info ----------
   campaign: {
     name: { type: String, required: true },
-    objective: { type: String, required: true }         // e.g., "TRAFFIC", "CONVERSIONS"
+    objective: { type: String, required: true } ,
+     fbCampaignId: {type:String}       
   },
 
   // ---------- Ad Set ----------
   adSet: {
     name: { type: String, required: true },
-    dailyBudget: { type: Number, required: true },      // smallest currency unit
-    startDate: { type: Date, required: true },
+    dailyBudget: { type: Number, required: true },      
     endDate: { type: Date, required: true },
     targeting: {
-      locations: [{ type: String, required: true }],   // country/city names
+      locations: [{ type: String, required: true }],  
       ageMin: { type: Number, required: true },
       ageMax: { type: Number, required: true },
-      gender: { type: Number, required: true }         // 1=Male, 2=Female, 0=All
-    }
+      gender: { type: Number, required: true }        
+    },
+    fbAdSetId:{type:String}
   },
 
   // ---------- Ad Creative ----------
   adCreative: {
     name: { type: String, required: true },
-    format: { type: String, required: true },          // "SINGLE_IMAGE", "CAROUSEL", "VIDEO"
-    mediaUrls: [{ type: String, required: true }],     // Array of hosted images/videos
+    format: { type: String, required: true },         
+    mediaUrls: [{ type: String, required: true }],   
     primaryText: { type: String, required: true },
     headline: { type: String, required: true },
-    destinationUrl: { type: String, required: true }   // Landing page
+    destinationUrl: { type: String, required: true },
+    fbAdCreativeId:{type:String}   
   }
 
 }, { timestamps: true });

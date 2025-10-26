@@ -44,6 +44,7 @@ export const facebookCallback = async (req, res) => {
     // ------------------- Get all pages -------------------
     const pagesRes = await axios.get(`https://graph.facebook.com/v17.0/me/accounts?access_token=${longLivedToken}`);
     const pages = pagesRes.data.data;
+    console.log(pages);
     if (!pages || pages.length === 0) {
       return res.status(400).json({ error: 'No Facebook pages found for this user' });
     }
