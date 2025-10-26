@@ -11,7 +11,7 @@ import {
      adminUpdateUserController,
      adminDeleteUserController
     } from "./user.controller.js";
-import { adminMiddleware,  verifyToken } from "../../core/middlewares/authMiddleware.js";
+import { adminMiddleware,  userAdminMiddleware,  verifyToken } from "../../core/middlewares/authMiddleware.js";
 import express from "express";
 
 
@@ -44,7 +44,7 @@ router.put("/upload-file", verifyToken, multerUpload([{ name: "userPDF", maxCoun
 router.delete("/upload-file", verifyToken, deleteUserPDFController);
 
 // admin user management
-router.get("/:id", verifyToken, adminMiddleware, adminGetUserByIdController);
+router.get("/:id", verifyToken, userAdminMiddleware, adminGetUserByIdController);
 router.put("/:id", verifyToken, adminMiddleware, adminUpdateUserController);
 router.delete("/:id", verifyToken, adminMiddleware, adminDeleteUserController);
 
