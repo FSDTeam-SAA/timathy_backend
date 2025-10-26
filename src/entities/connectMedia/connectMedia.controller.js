@@ -53,6 +53,7 @@ export const facebookCallback = async (req, res) => {
     const facebookPagesData = await Promise.all(
       pages.map(async (page) => {
         let instagramBusinessId = null;
+            let adAccountId = null
         try {
           const igRes = await axios.get(
             `https://graph.facebook.com/v17.0/${page.id}?fields=instagram_business_account&access_token=${longLivedToken}`
@@ -62,11 +63,25 @@ export const facebookCallback = async (req, res) => {
           console.warn(`No Instagram Business ID for page ${page.id}`);
         }
 
+
+         // ---------------- Get Ad Account ID ----------------
+    try {
+      const adAccountsRes = await axios.get(
+        `https://graph.facebook.com/v17.0/${page.id}/adaccounts?access_token=${longLivedToken}`
+      );
+      // pick the first ad account (if multiple)
+      if (adAccountsRes.data.data && adAccountsRes.data.data.length > 0) {
+        adAccountId = adAccountsRes.data.data[0].id;
+      }
+    } catch (err) {
+      console.warn(`No Ad Account for page ${page.id}`);
+    }
+
         return {
           pageId: page.id,
           pageName: page.name,
           pageAccessToken: page.access_token || longLivedToken, // fallback to long-lived token
-          adAccountId: page.id, // You can adjust if the ad account ID is different
+          adAccountId, // You can adjust if the ad account ID is different
           instagramBusinessId,
           tasks: page.tasks || []
         };
