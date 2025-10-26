@@ -118,26 +118,32 @@ export const facebookCallback = async (req, res) => {
           pages = pagesRes.data.data || [];
 
           // Add IG IDs for each page
-          pages = await Promise.all(
-            pages.map(async (page) => {
-              let instagramBusinessId = null;
-              try {
-                const igRes = await axios.get(
-                  `https://graph.facebook.com/v17.0/${page.id}?fields=instagram_business_account&access_token=${longLivedToken}`
-                );
-                instagramBusinessId = igRes.data.instagram_business_account?.id || null;
-              } catch {
-                console.warn(`No Instagram for page ${page.id}`);
-              }
+        pages = await Promise.all(
+  pages.map(async (page) => {
+    let instagramBusinessId = null;
+    let pageAccessToken = null;
 
-              return {
-                pageId: page.id,
-                pageName: page.name,
-                pageAccessToken: page.access_token,
-                instagramBusinessId,
-              };
-            })
-          );
+    try {
+      // ✅ Fetch page access token
+      const tokenRes = await axios.get(
+        `https://graph.facebook.com/v17.0/${page.id}?fields=access_token,instagram_business_account&access_token=${longLivedToken}`
+      );
+
+      pageAccessToken = tokenRes.data.access_token || null;
+      instagramBusinessId = tokenRes.data.instagram_business_account?.id || null;
+
+    } catch (err) {
+      console.warn(`Failed to fetch token for page ${page.id}:`, err.response?.data || err.message);
+    }
+
+    return {
+      pageId: page.id,
+      pageName: page.name,
+      pageAccessToken,
+      instagramBusinessId,
+    };
+  })
+);
         } catch {
           console.warn(`No pages found for business ${businessName}`);
         }
