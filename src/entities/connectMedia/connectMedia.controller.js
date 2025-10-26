@@ -17,10 +17,11 @@ export const getFacebookLoginUrl = async (req, res) => {
 // Handle callback from Facebook
 export const facebookCallback = async (req, res) => {
   try {
-     const { code, state: userId } = req.query;
+    const { code, state: userId } = req.query;
     if (!code) return res.status(400).json({ error: 'No code provided by Facebook' });
+    if (!userId) return res.status(400).json({ error: 'User ID not provided' });
 
-    // Exchange code for short-lived token
+    // ------------------- Short-lived token -------------------
     const shortLivedRes = await axios.get(
       `https://graph.facebook.com/v17.0/oauth/access_token?` +
       `client_id=${process.env.FACEBOOK_APP_ID}` +
@@ -28,10 +29,9 @@ export const facebookCallback = async (req, res) => {
       `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
       `&code=${code}`
     );
-
     const shortLivedToken = shortLivedRes.data.access_token;
 
-    // Exchange short-lived token for long-lived token
+    // ------------------- Long-lived token -------------------
     const longLivedRes = await axios.get(
       `https://graph.facebook.com/v17.0/oauth/access_token?` +
       `grant_type=fb_exchange_token` +
@@ -39,40 +39,47 @@ export const facebookCallback = async (req, res) => {
       `&client_secret=${process.env.FACEBOOK_APP_SECRET}` +
       `&fb_exchange_token=${shortLivedToken}`
     );
-
     const longLivedToken = longLivedRes.data.access_token;
 
-    // Get pages the user manages
+    // ------------------- Get all pages -------------------
     const pagesRes = await axios.get(`https://graph.facebook.com/v17.0/me/accounts?access_token=${longLivedToken}`);
-    console.log(pagesRes.data);
-
     const pages = pagesRes.data.data;
-if (!pages || pages.length === 0) {
-  return res.status(400).json({ error: 'No Facebook pages found for this user' });
-}
+    if (!pages || pages.length === 0) {
+      return res.status(400).json({ error: 'No Facebook pages found for this user' });
+    }
 
-const page = pages[0];
+    // ------------------- Prepare array for sub-schema -------------------
+    const facebookPagesData = await Promise.all(
+      pages.map(async (page) => {
+        let instagramBusinessId = null;
+        try {
+          const igRes = await axios.get(
+            `https://graph.facebook.com/v17.0/${page.id}?fields=instagram_business_account&access_token=${longLivedToken}`
+          );
+          instagramBusinessId = igRes.data.instagram_business_account?.id || null;
+        } catch (err) {
+          console.warn(`No Instagram Business ID for page ${page.id}`);
+        }
 
-
-    // Get Instagram Business ID linked to page
-    const igRes = await axios.get(
-      `https://graph.facebook.com/v17.0/${page.id}?fields=instagram_business_account&access_token=${longLivedToken}`
+        return {
+          pageId: page.id,
+          pageName: page.name,
+          pageAccessToken: page.access_token || longLivedToken, // fallback to long-lived token
+          adAccountId: page.id, // You can adjust if the ad account ID is different
+          instagramBusinessId,
+          tasks: page.tasks || []
+        };
+      })
     );
 
-    const instagramBusinessId = igRes.data.instagram_business_account?.id || null;
-
-    // Save tokens & IDs to user model
-    // Assuming you have auth middleware
+    // ------------------- Save to user -------------------
     await User.findByIdAndUpdate(userId, {
-      pageAccessToken: longLivedToken,
-      adAccountId: page.id,
-      instagramBusinessId,
+      facebookPages: facebookPagesData
     });
 
     res.json({
-      message: 'Facebook & Instagram connected successfully',
-      page,
-      instagramBusinessId,
+      message: 'Facebook & Instagram pages connected successfully',
+      facebookPages: facebookPagesData
     });
 
   } catch (error) {

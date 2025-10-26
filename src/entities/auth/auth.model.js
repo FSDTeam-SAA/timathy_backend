@@ -13,6 +13,14 @@ const AddressSchema = new mongoose.Schema({
   taxId: { type: String, default: '' }
 }, { _id: false });
 
+const FacebookPageSchema = new mongoose.Schema({
+  pageId: { type: String, required: true },             // Facebook Page ID
+  pageName: { type: String, required: true },           // Page name
+  pageAccessToken: { type: String, required: true },    // Long-lived access token for the page
+  adAccountId: { type: String },                        // Ad account linked to this page
+  instagramBusinessId: { type: String, default: null }, // Instagram Business ID if linked
+  tasks: [{ type: String }]                             // Permissions/tasks for the page
+}, { _id: false });
 
 const UserSchema = new mongoose.Schema(
   {
@@ -31,7 +39,7 @@ adAccountId: { type: String, default: null },
 pageAccessToken: { type: String, default: null },
 instagramAccountId: { type: String, default: null },
 facebookConnectedAt: { type: Date, default: null },
-
+ facebookPages: [FacebookPageSchema],
 
 
     role: {
