@@ -12,7 +12,6 @@ const AddressSchema = new mongoose.Schema({
   postalCode: { type: String, default: '' },
   taxId: { type: String, default: '' }
 }, { _id: false });
-
 const FacebookPageSchema = new mongoose.Schema({
   pageId: { type: String, required: true },             // Facebook Page ID
   pageName: { type: String, required: true },           // Page name
@@ -21,6 +20,22 @@ const FacebookPageSchema = new mongoose.Schema({
   instagramBusinessId: { type: String, default: null }, // Instagram Business ID if linked
   tasks: [{ type: String }]                             // Permissions/tasks for the page
 }, { _id: false });
+
+const FacebookAdAccountSchema = new mongoose.Schema({
+  account_id: { type: String, required: true },
+  id: { type: String, required: true },
+  name: { type: String, default: '' },
+  currency: { type: String, default: '' }
+}, { _id: false });
+
+// Facebook Business Sub-schema
+const FacebookBusinessSchema = new mongoose.Schema({
+  businessId: { type: String, required: true },
+  businessName: { type: String, required: true },
+  pages: [FacebookPageSchema],         // Reuse your existing page schema
+  adAccounts: [FacebookAdAccountSchema]
+}, { _id: false });
+
 
 const UserSchema = new mongoose.Schema(
   {
@@ -40,7 +55,7 @@ pageAccessToken: { type: String, default: null },
 instagramAccountId: { type: String, default: null },
 facebookConnectedAt: { type: Date, default: null },
  facebookPages: [FacebookPageSchema],
-
+facebookBusinesses: [FacebookBusinessSchema],
 
     role: {
       type: String,
