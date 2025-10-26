@@ -4,11 +4,12 @@ import User from '../auth/auth.model.js';
 
 // Redirect user to Facebook login
 export const getFacebookLoginUrl = async (req, res) => {
+  const userId = req.user._id
   const redirectUri = encodeURIComponent(`${process.env.BASE_URL}/api/v1/connect/callback`);
   const clientId = process.env.FACEBOOK_APP_ID;
   const scope = encodeURIComponent('pages_show_list,ads_management,instagram_basic,ads_read,pages_read_engagement');
   
-  const fbLoginUrl = `https://www.facebook.com/v17.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code`;
+  const fbLoginUrl = `https://www.facebook.com/v17.0/dialog/oauth?client_id=${clientId}&redirect_uri=${redirectUri}&scope=${scope}&response_type=code&state=${userId}`;
 
   res.json({ url: fbLoginUrl }); // Frontend can redirect user to this URL
 };
@@ -16,7 +17,7 @@ export const getFacebookLoginUrl = async (req, res) => {
 // Handle callback from Facebook
 export const facebookCallback = async (req, res) => {
   try {
-    const { code } = req.query;
+     const { code, state: userId } = req.query;
     if (!code) return res.status(400).json({ error: 'No code provided by Facebook' });
 
     // Exchange code for short-lived token
@@ -61,7 +62,7 @@ const page = pages[0];
     const instagramBusinessId = igRes.data.instagram_business_account?.id || null;
 
     // Save tokens & IDs to user model
-    const userId = req.user._id; // Assuming you have auth middleware
+    // Assuming you have auth middleware
     await User.findByIdAndUpdate(userId, {
       pageAccessToken: longLivedToken,
       adAccountId: page.id,
