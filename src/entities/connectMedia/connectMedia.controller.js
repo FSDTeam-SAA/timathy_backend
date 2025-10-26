@@ -61,7 +61,7 @@ const page = pages[0];
     const instagramBusinessId = igRes.data.instagram_business_account?.id || null;
 
     // Save tokens & IDs to user model
-    const userId = req.user._id; // Assuming you have auth middleware
+    const userId = req.user.id; // Assuming you have auth middleware
     await User.findByIdAndUpdate(userId, {
       pageAccessToken: longLivedToken,
       adAccountId: page.id,
