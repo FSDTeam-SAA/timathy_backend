@@ -69,6 +69,7 @@ export const facebookCallback = async (req, res) => {
       const adAccountsRes = await axios.get(
         `https://graph.facebook.com/v17.0/${page.id}/adaccounts?access_token=${longLivedToken}`
       );
+      console.log(adAccountsRes);
       // pick the first ad account (if multiple)
       if (adAccountsRes.data.data && adAccountsRes.data.data.length > 0) {
         adAccountId = adAccountsRes.data.data[0].id;
