@@ -1,5 +1,7 @@
 import express from 'express';
-import { generateAd, saveAd } from './data.controller.js';
+import { createAd, generateAd, getAdById, getAllAds} from './data.controller.js';
+import { multerUpload } from '../../core/middlewares/multer.js';
+import { userAdminMiddleware, verifyToken } from '../../core/middlewares/authMiddleware.js';
 
 
 const router = express.Router();
@@ -7,6 +9,9 @@ const router = express.Router();
 // POST /api/generate-ad
 router.post('/generate-ad', generateAd);
 
-router.post('/save', saveAd);
+router.post('/save',verifyToken,userAdminMiddleware, multerUpload([{ name: "ads", maxCount: 10 },]),createAd);
+router.get('/all', verifyToken, userAdminMiddleware,getAllAds);
 
+// Get ad by ID
+router.get('/:id', verifyToken,userAdminMiddleware, getAdById);
 export default router;

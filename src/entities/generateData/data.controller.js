@@ -2,6 +2,7 @@ import { crawlWebsite } from '../../lib/crawler.js';
 import OpenAI from 'openai';
 
 import Ad from './data.model.js';
+import { cloudinaryUpload } from '../../lib/cloudinaryUpload.js';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -90,14 +91,76 @@ Only return valid JSON, no explanations.
 
 
 
-export const saveAd = async (req, res) => {
+// Create ad and save in DB with Cloudinary upload
+export const createAd = async (req, res) => {
   try {
-    const adData = req.body;
+    const userId = req.user._id;
+   // Parse JSON fields from form-data
+    const campaign = JSON.parse(req.body.campaign);
+    const adSet = JSON.parse(req.body.adSet);
+    const adCreative = JSON.parse(req.body.adCreative);
 
-    // Save to DB
-    const ad = await Ad.create(adData);
-    res.status(201).json({ message: 'Ad saved successfully', ad });
+    // Upload files if provided
+     // Upload files if provided
+    let uploadedUrls = [];
+    if (req.files && req.files.ads && req.files.ads.length > 0) {
+      for (let file of req.files.ads) {
+        const uploaded = await cloudinaryUpload(file.path, file.filename, 'ads');
+        if (uploaded !== 'file upload failed') {
+          uploadedUrls.push(uploaded.secure_url);
+        }
+      }
+    }
 
+    // Merge uploaded URLs into adCreative.mediaUrls
+    if (!adCreative.mediaUrls) adCreative.mediaUrls = [];
+    adCreative.mediaUrls.push(...uploadedUrls);
+
+    const newAd = await Ad.create({
+      campaign,
+      adSet,
+      adCreative,
+      userId: req.user._id
+    });
+
+    res.json({
+      message: 'Ad created successfully',
+      ad: newAd
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+export const getAllAds = async (req, res) => {
+  try {
+    const ads = await Ad.find().sort({ createdAt: -1 }); // newest first
+    res.json({
+      message: 'Ads fetched successfully',
+      ads
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ---------------- Get ad by ID ----------------
+export const getAdById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const ad = await Ad.findById(id);
+
+    if (!ad) {
+      return res.status(404).json({ error: 'Ad not found' });
+    }
+
+    res.json({
+      message: 'Ad fetched successfully',
+      ad
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

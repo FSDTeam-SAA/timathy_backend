@@ -1,6 +1,13 @@
 import mongoose from 'mongoose';
 
 const AdSchema = new mongoose.Schema({
+   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Who created the ad
+  page: {
+    pageId: { type: String,  },
+    pageName: { type: String,  },
+    pageAccessToken: { type: String,  },
+    instagramBusinessId: { type: String } // optional
+  },
   // ---------- Campaign Info ----------
   campaign: {
     name: { type: String, required: true },
