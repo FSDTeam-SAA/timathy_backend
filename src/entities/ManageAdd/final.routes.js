@@ -8,5 +8,5 @@ import { createAdSet } from "./adSet.controller.js";
 const router = express.Router()
 
 router.post('/create-campaign',verifyToken,userAdminMiddleware,createCampaign)
-router.post('/create-adSet',createAdSet)
+router.post('/create-adSet',verifyToken,userAdminMiddleware,createAdSet)
 export default router
