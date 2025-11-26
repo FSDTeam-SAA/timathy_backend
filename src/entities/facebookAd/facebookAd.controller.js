@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'querystring';
+
 import User from '../auth/auth.model.js';
 import facebookAdModel from './facebookAd.model.js';
 import Ad from '../generateData/data.model.js';
