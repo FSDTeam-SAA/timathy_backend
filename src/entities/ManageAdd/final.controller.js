@@ -59,6 +59,7 @@ export const createCampaign = async (req, res) => {
         name,
         objective,
         status: 'PAUSED',
+        special_ad_categories: JSON.stringify(["NONE"])
       }),
       {
         params: { access_token: pageAccessToken },
