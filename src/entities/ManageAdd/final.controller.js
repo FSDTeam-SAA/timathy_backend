@@ -14,7 +14,7 @@ const FB = (path) =>
  */
 export const createCampaign = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.id;
     const { adAccountId, pageId, name, objective } = req.body;
 
     if (!adAccountId || !pageId || !name || !objective) {
