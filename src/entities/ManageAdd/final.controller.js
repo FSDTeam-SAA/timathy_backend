@@ -24,7 +24,7 @@ export const createCampaign = async (req, res) => {
     }
 
     // Validate objective (only allow Awareness or Leads)
-    const ALLOWED_OBJECTIVES = ['BRAND_AWARENESS', 'LEAD_GENERATION'];
+    const ALLOWED_OBJECTIVES = ['OUTCOME_LEADS', 'OUTCOME_AWARENESS'];
     if (!ALLOWED_OBJECTIVES.includes(objective)) {
       return res.status(400).json({
         error: `Invalid objective. Allowed values: ${ALLOWED_OBJECTIVES.join(', ')}`,

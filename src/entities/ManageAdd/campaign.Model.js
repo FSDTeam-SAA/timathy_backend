@@ -7,7 +7,7 @@ const facebookCampaignSchema = new mongoose.Schema({
 
   name: { type: String, required: true },
 
-  // Only allow Awareness or Leads as campaign objectives
+  
   objective: { 
     type: String, 
     enum: ['OUTCOME_LEADS', 'OUTCOME_AWARENESS'], 
