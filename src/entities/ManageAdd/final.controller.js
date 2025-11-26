@@ -59,6 +59,7 @@ export const createCampaign = async (req, res) => {
         name,
         objective,
         status: 'PAUSED',
+        "is_adset_budget_sharing_enabled":false,
         special_ad_categories: JSON.stringify(["NONE"])
       }),
       {
