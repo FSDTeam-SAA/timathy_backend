@@ -1,6 +1,6 @@
 import axios from 'axios';
 import qs from 'querystring';
-import fs from 'fs';
+
 
 import FacebookAdCreative from '../ManageAdd/AdCreative.model.js';
 import User from '../auth/auth.model.js';
