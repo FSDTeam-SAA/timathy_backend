@@ -13,9 +13,14 @@ const FB = (path) =>
 export const createAdCreative = async (req, res) => {
   try {
     const userId = req.user._id;
-    const { adAccountId, pageId, adSetId, adCreative } = req.body;
+    const { adAccountId, pageId, adSetId } = req.body;
+    let adCreative = req.body.adCreative;
 
-    if (!adAccountId || !pageId || !adSetId || !adCreative) {
+if (typeof adCreative === "string") {
+  adCreative = JSON.parse(adCreative);
+}
+
+    if (!adAccountId || !pageId || !adSetId ) {
       return res.status(400).json({
         error: 'adAccountId, pageId, adSetId and adCreative are required',
       });
