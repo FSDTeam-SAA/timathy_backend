@@ -51,6 +51,8 @@ export const createAdSet = async (req, res) => {
       age_min: targeting?.ageMin || 18,
       age_max: targeting?.ageMax || 65,
       genders: targeting?.gender ? [targeting.gender] : [],
+      targeting_automation: { "advantage_audience": 0 }
+
     };
     
 
