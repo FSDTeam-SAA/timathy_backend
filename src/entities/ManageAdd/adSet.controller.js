@@ -34,7 +34,17 @@ export const createAdSet = async (req, res) => {
     // Fetch campaign to verify it exists
     const campaign = await FacebookCampaign.findById(campaignId);
     if (!campaign) return res.status(404).json({ error: 'Campaign not found' });
-
+ // Determine optimization goal based on campaign objective
+    let optimizationGoal;
+    switch (campaign.objective) { // use campaign.objective here
+      case 'OUTCOME_AWARENESS':
+        optimizationGoal = 'REACH';
+        break;
+      case 'OUTCOME_LEADS':
+        optimizationGoal = 'LEADS';
+        break;
+       // fallback for other campaigns
+    }
     // Build targeting object for FB
     const fbTargeting = {
       geo_locations: { countries: (targeting?.locations || []).filter(l => l.length === 2).map(l => l.toUpperCase()) },
@@ -42,6 +52,7 @@ export const createAdSet = async (req, res) => {
       age_max: targeting?.ageMax || 65,
       genders: targeting?.gender ? [targeting.gender] : [],
     };
+    
 
     // POST to Facebook to create Ad Set
     const createAdSetRes = await axios.post(
@@ -53,7 +64,7 @@ export const createAdSet = async (req, res) => {
         start_time: startDate ? new Date(startDate).toISOString() : new Date().toISOString(),
         end_time: endDate ? new Date(endDate).toISOString() : undefined,
         billing_event: 'IMPRESSIONS',
-        optimization_goal: 'LINK_CLICKS',
+        optimization_goal: optimizationGoal,
         bid_strategy: 'LOWEST_COST_WITHOUT_CAP',
         targeting: JSON.stringify(fbTargeting),
         is_adset_budget_sharing_enabled: false, // individual budget
