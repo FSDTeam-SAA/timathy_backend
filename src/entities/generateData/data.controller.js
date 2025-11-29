@@ -17,45 +17,38 @@ export const generateAd = async (req, res) => {
     const crawledData = await crawlWebsite(url);
 
     // 2️⃣ Prepare prompt for GPT
-    const prompt = `
+const prompt = `
 You are an expert Facebook/Instagram ad copywriter.
-Generate the mandatory ad data for a campaign based on the following website info:
+
+Based on this website info:
 
 Title: ${crawledData.title}
 Description: ${crawledData.description}
 Headings: ${crawledData.headings.join(', ')}
 Links: ${crawledData.links.join(', ')}
 
-Generate JSON output ONLY with the following mandatory fields:
+Return ONLY this exact JSON structure:
 
 {
-  "campaign": {
-    "name": "string",
-    "objective": "string"
-  },
-  "adSet": {
-    "name": "string",
-    "dailyBudget": 0,
-    "startDate": "YYYY-MM-DD",
-    "endDate": "YYYY-MM-DD",
-    "targeting": {
-      "locations": ["country/city"],
-      "ageMin": 18,
-      "ageMax": 60,
-      "gender": 0
-    }
-  },
   "adCreative": {
-    "name": "string",
-    "format": "SINGLE_IMAGE",
-    "mediaUrls": ["url"],
-    "primaryText": "string",
     "headline": "string",
-    "destinationUrl": "string"
+    "mediaUrls": ["base64 string of generated image"],
+    "primaryText": "string"
   }
 }
-Only return valid JSON, no explanations.
+
+Rules:
+- "primaryText" MUST be EXACTLY 30 lines.
+- Enforce 20 lines using "\\n" line breaks.
+- Every line MUST be short, catchy, and relevant to the website.
+- "headline" must be 3–8 words only.
+- "mediaUrls" must contain a single generated base64 image.
+- DO NOT return anything outside the JSON.
+- DO NOT return long paragraphs.
+- DO NOT add explanations, metadata, or comments.
+- Output ONLY valid JSON.
 `;
+
 
     // 3️⃣ Call GPT API (v4+ SDK)
     const response = await openai.chat.completions.create({
