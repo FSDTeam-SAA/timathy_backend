@@ -2,7 +2,12 @@
 import puppeteer from 'puppeteer';
 
 export async function crawlWebsite(url) {
-  const browser = await puppeteer.launch({ headless: true });
+const browser = await puppeteer.launch({
+  headless: true,
+  executablePath: puppeteer.executablePath("chromium"),
+  args: ["--no-sandbox", "--disable-setuid-sandbox"]
+});
+
   const page = await browser.newPage();
   await page.goto(url, { waitUntil: 'networkidle2' });
 
