@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest",
-    "postinstall": "puppeteer browsers install chromium"
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^1.12.2",
@@ -29,7 +28,7 @@
     "multer": "^1.4.5-lts.2",
     "nodemailer": "^6.10.1",
     "openai": "^6.7.0",
-    "puppeteer": "^24.26.1",
+    "puppeteer": "^21.3.8",
     "socket.io": "^4.8.1",
     "stripe": "^18.3.0",
     "winston": "^3.8.2",
