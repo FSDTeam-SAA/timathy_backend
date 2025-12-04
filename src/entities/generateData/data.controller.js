@@ -32,7 +32,7 @@ Return ONLY this exact JSON structure:
 {
   "adCreative": {
     "headline": "string",
-    "mediaUrls": ["base64 string of generated image"],
+   
     "primaryText": "string"
   }
 }
