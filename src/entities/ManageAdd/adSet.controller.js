@@ -41,7 +41,7 @@ export const createAdSet = async (req, res) => {
         optimizationGoal = 'REACH';
         break;
       case 'OUTCOME_LEADS':
-        optimizationGoal = 'LEADS';
+        optimizationGoal = 'LEAD_GENERATION';
         break;
        // fallback for other campaigns
     }
